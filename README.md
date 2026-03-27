@@ -1,4 +1,4 @@
-# MCP (Model Context Protocol) – Simple English Notes
+# MCP (Model Context Protocol)
 
 ## 📌 Overview
 
@@ -275,7 +275,7 @@ To go deeper, learn:
 * MCP servers & clients
 * Building your own MCP tools
 
-# 📘 Model Context Protocol (MCP) - Simple English Notes
+# 📘 Model Context Protocol (MCP) 
 
 ---
 
