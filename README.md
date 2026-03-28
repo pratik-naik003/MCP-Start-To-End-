@@ -614,7 +614,6 @@ To:
 ## 🔚 End
 
 These notes are based on the provided content and simplified deeply for understanding. fileciteturn0file0
-
 # 📘 Model Context Protocol (MCP) — Part 1 (Architecture)
 
 ---
@@ -622,6 +621,7 @@ These notes are based on the provided content and simplified deeply for understa
 ## 🧠 What is MCP?
 
 ![MCP Architecture](https://mcpcat.io/images/blog/mcp-architecture.png)
+![Overview](https://miro.medium.com/v2/resize\:fit:1400/1-MfI2XLk63rQye0Sh-hAUag.png)
 
 MCP (Model Context Protocol) is a standard that allows AI applications (like chatbots) to connect with external tools, data, and services.
 
@@ -631,6 +631,8 @@ MCP (Model Context Protocol) is a standard that allows AI applications (like cha
 ---
 
 ## 🧩 Basic MCP Architecture (Simplest Version)
+
+![Basic Flow](https://media2.dev.to/dynamic/image/width=800/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/7lr9tmc9rnl5f96coirf.png)
 
 ### Components:
 
@@ -679,6 +681,7 @@ MCP (Model Context Protocol) is a standard that allows AI applications (like cha
 ## 🧩 Final Architecture
 
 ![Architecture](https://miro.medium.com/v2/resize\:fit:1200/1-hxvZY7Rg6hPKv8amieddOw.png)
+![System Design](https://guptadeepak.com/content/images/size/w2000/2025/05/MCP-Architecture-Diagram---guptadeepak.com.png)
 
 ### Components:
 
@@ -689,6 +692,8 @@ MCP (Model Context Protocol) is a standard that allows AI applications (like cha
 ---
 
 ## 🔹 Role of Client
+
+![Client Role](https://media.springernature.com/lw1200/springer-static/image/art%3A10.1007%2Fs44163-024-00134-3/MediaObjects/44163_2024_134_Fig2_HTML.png)
 
 * Acts as translator
 * Converts request → MCP format
@@ -719,6 +724,8 @@ MCP (Model Context Protocol) is a standard that allows AI applications (like cha
 
 ## 📱 Real-Life Analogy
 
+![Analogy](https://www.altexsoft.com/media/2020/05/word-image-54.png)
+
 | Real World | MCP    |
 | ---------- | ------ |
 | Phone      | Host   |
@@ -728,6 +735,8 @@ MCP (Model Context Protocol) is a standard that allows AI applications (like cha
 ---
 
 ## 🚀 Benefits
+
+![Benefits](https://substackcdn.com/image/fetch/$s_!cv8k!,f_auto,q_auto\:good,fl_progressive\:steep/https://substack-post-media.s3.amazonaws.com/public/images/362128ff-7821-482e-b08a-8252d0faab99_1200x1200.png)
 
 ### 1. Decoupling
 
@@ -749,6 +758,8 @@ MCP (Model Context Protocol) is a standard that allows AI applications (like cha
 
 ### 🔹 1. Tools
 
+![Tools](https://www.altexsoft.com/media/2019/10/word-image-9.png)
+
 * Actions
 * Dynamic data
 
@@ -761,6 +772,8 @@ Examples:
 
 ### 🔹 2. Resources
 
+![Resources](https://cdn.bulldogjob.com/system/photos/files/000/003/440/original/readme.png)
+
 * Static data
 
 Examples:
@@ -771,6 +784,8 @@ Examples:
 ---
 
 ### 🔹 3. Prompts
+
+![Prompts](https://docs.github.com/assets/cb-80496/images/help/repository/sample-issue-form.png)
 
 * Guidelines for AI
 
@@ -807,6 +822,8 @@ Environment
 ---
 
 ## 🧠 Data Layer
+
+![JSON RPC](https://opsi.org/en/blog/opsi-cli-jsonrpc/header.jpg)
 
 👉 Language of MCP
 
@@ -854,6 +871,3 @@ Environment
 ## 📌 Source
 
 Based on video content: fileciteturn0file0
-
-
-
