@@ -1171,5 +1171,340 @@ Means:
 
 ## 📌 Source
 
-Based on video content: fileciteturn1file0
+# MCP Lifecycle – Simple English Notes (Detailed)
+
+---
+
+## 📌 Introduction
+
+This document explains the **MCP Lifecycle** in very simple English with full detail and examples.
+
+👉 MCP Lifecycle means how **Client and Server connect, communicate, and disconnect** step by step.
+
+---
+
+## 🧠 What is MCP Lifecycle?
+
+**Definition:**
+MCP Lifecycle is the **complete sequence of steps** that explains how:
+
+* Connection is created
+* Communication happens
+* Connection ends
+
+📌 fileciteturn0file0
+
+---
+
+## 🔗 What is a Session?
+
+A **session** is a continuous connection between:
+
+* Client (Host)
+* Server
+
+### Example:
+
+* Claude Desktop = Client
+* GitHub MCP Server = Server
+
+👉 When you start Claude Desktop:
+
+* It connects to server automatically
+* Connection stays active until you close it
+
+That continuous connection = **Session**
+
+---
+
+## 🔄 MCP Lifecycle Phases
+
+There are **3 main phases**:
+
+1. Initialization Phase
+2. Operation Phase
+3. Shutdown Phase
+
+---
+
+# 🟢 1. Initialization Phase (Handshake Phase)
+
+👉 This is the **first interaction** between client and server.
+
+### Purpose:
+
+* Check compatibility
+* Exchange capabilities
+* Establish connection
+
+---
+
+## ⚙️ Step-by-Step Process
+
+### 🔹 Step 1: Client → Server (Initialize Request)
+
+Client sends a request to server:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {
+      "roots": {},
+      "sampling": {}
+    },
+    "clientInfo": {
+      "name": "client-app",
+      "version": "1.0.0"
+    }
+  }
+}
+```
+
+### 📌 What client sends:
+
+* Protocol version
+* Capabilities (what it can do)
+* Client info
+
+---
+
+### 🔹 Step 2: Server → Client (Response)
+
+Server replies with:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "protocolVersion": "2024-10-01",
+    "capabilities": {
+      "tools": {},
+      "resources": {}
+    },
+    "serverInfo": {
+      "name": "filesystem-server",
+      "version": "2.0.0"
+    }
+  }
+}
+```
+
+### 📌 What server sends:
+
+* Protocol version
+* Capabilities
+* Server info
+
+---
+
+### 🔹 Step 3: Client → Server (Initialized Notification)
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "initialized"
+}
+```
+
+👉 This means:
+
+* Connection is successful
+* Communication can start
+
+---
+
+## ⚠️ Important Rules
+
+### Rule 1:
+
+Client cannot send other requests before initialization completes
+
+### Rule 2:
+
+Server also cannot respond with other data before "initialized"
+
+👉 Only allowed:
+
+* Ping
+* Logs
+
+---
+
+# 🔄 Version Negotiation
+
+👉 What if versions are different?
+
+### Process:
+
+1. Client checks server version
+2. Compares with supported versions
+3. If supported → continue
+4. If not → disconnect
+
+---
+
+# 🤝 Capability Negotiation
+
+👉 Client and server tell each other:
+**"What I can do"**
+
+---
+
+## 🧩 Client Capabilities
+
+### 1. Roots
+
+* Give access to file system
+
+### 2. Sampling
+
+* Server can use client’s AI
+
+### 3. Elicitation
+
+* Server asks for missing info
+
+---
+
+## 🧩 Server Capabilities
+
+### 1. Tools
+
+* Functions that client can use
+
+### 2. Resources
+
+* Static data (files/docs)
+
+### 3. Prompts
+
+* Instructions/templates
+
+### 4. Logging
+
+* Send updates during long tasks
+
+---
+
+## 🔔 Sub-Capabilities
+
+### 1. list_changed
+
+* Notify when tools/resources change
+
+### 2. subscribe
+
+* Get updates when resource changes
+
+---
+
+# 🟡 2. Operation Phase
+
+👉 This is the **main working phase**
+
+### What happens:
+
+* Client sends requests
+* Server processes them
+* Server sends responses
+
+---
+
+## Example Request
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools.call",
+  "params": {
+    "name": "createFile",
+    "arguments": {
+      "path": "test.txt"
+    }
+  }
+}
+```
+
+---
+
+## Rules:
+
+* Use agreed protocol version
+* Use only negotiated capabilities
+
+---
+
+# 🔴 3. Shutdown Phase
+
+👉 Ending the session
+
+### When happens:
+
+* Client closes app
+* Server stops
+
+---
+
+## Example
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "shutdown"
+}
+```
+
+---
+
+# 💻 Practical Understanding
+
+👉 Example setup:
+
+* Client: Claude Desktop
+* Server: File System MCP Server
+
+### What server can do:
+
+* Read files
+* Create files
+* Modify files
+
+---
+
+## 🧠 Key Takeaways
+
+* MCP works in **3 phases**
+* Initialization = handshake
+* Operation = real work
+* Shutdown = connection end
+* JSON-RPC is used for communication
+
+---
+
+## 🚀 Final Summary
+
+MCP Lifecycle =
+
+1. Connect (Initialization)
+2. Communicate (Operation)
+3. Disconnect (Shutdown)
+
+---
+
+✔ This lifecycle is very important for building:
+
+* MCP Servers
+* MCP Clients
+* AI Agent Systems
+
+---
+
+🔥 Now you are ready to implement MCP in real projects!
+
 
