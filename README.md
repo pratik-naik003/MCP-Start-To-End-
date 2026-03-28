@@ -869,5 +869,307 @@ Environment
 ---
 
 ## 📌 Source
+# 📘 Model Context Protocol (MCP) — Part 2 (Data Layer + Transport Layer)
 
-Based on video content: fileciteturn0file0
+---
+
+## 🧠 What is Data Layer?
+
+![Data Layer](https://opsi.org/en/blog/opsi-cli-jsonrpc/header.jpg)
+![JSON Structure](https://cdn.prod.website-files.com/5ff66329429d880392f6cba2/676ff01bb48efc129a28b29d_61b76e7fdf48bbef0026f39a_JSON%2520works.png)
+
+👉 Data Layer = Language used for communication between Client and Server
+
+* Defines rules (grammar)
+* Defines structure of messages
+
+📌 In MCP → Data Layer uses **JSON-RPC 2.0**
+
+---
+
+## 🔗 What is RPC?
+
+![RPC](https://www.altexsoft.com/media/2020/05/word-image-54.png)
+
+👉 RPC = Remote Procedure Call
+
+Simple meaning:
+
+> Call a function on another machine like it's local
+
+Example:
+
+Instead of:
+
+```
+add(2, 3)
+```
+
+You send request:
+
+```
+Run "add" with parameters 2 and 3
+```
+
+---
+
+## 🔗 What is JSON-RPC?
+
+![JSON RPC Flow](https://www.researchgate.net/publication/320078730/figure/fig5/AS%3A543639655141377%401506625202361/An-example-of-JSON-RPC-response.png)
+
+👉 JSON-RPC = RPC + JSON format
+
+* RPC → calling remote functions
+* JSON → structure of message
+
+---
+
+## 🧾 JSON-RPC Request Structure
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "add",
+  "params": {
+    "a": 2,
+    "b": 3
+  },
+  "id": 1
+}
+```
+
+### Explanation:
+
+* `jsonrpc` → version
+* `method` → function name
+* `params` → inputs
+* `id` → match request & response
+
+---
+
+## 🧾 JSON-RPC Response
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": 5,
+  "id": 1
+}
+```
+
+---
+
+## ❌ Error Response
+
+```json
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32601,
+    "message": "Method not found"
+  },
+  "id": 1
+}
+```
+
+---
+
+## ⚡ JSON-RPC in MCP (Important)
+
+👉 All communication between Client & Server uses JSON-RPC
+
+Example:
+
+### tools/list
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tools/list",
+  "id": 1
+}
+```
+
+### tools/call
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "list_issues"
+  },
+  "id": 2
+}
+```
+
+---
+
+## 🔥 Advanced Features of JSON-RPC
+
+### 1. Batch Requests
+
+![Batch](https://substackcdn.com/image/fetch/$s_!cv8k!,f_auto,q_auto\:good,fl_progressive\:steep/https://substack-post-media.s3.amazonaws.com/public/images/362128ff-7821-482e-b08a-8252d0faab99_1200x1200.png)
+
+👉 Send multiple requests at once
+
+---
+
+### 2. Notifications
+
+👉 No response required
+
+* Fire and forget
+* No `id` field
+
+---
+
+## 🚀 Why JSON-RPC over REST?
+
+| Feature      | JSON-RPC | REST          |
+| ------------ | -------- | ------------- |
+| Endpoint     | Single   | Multiple URLs |
+| Format       | JSON     | JSON/XML      |
+| Overhead     | Low      | High          |
+| Batch        | Yes      | No            |
+| Notification | Yes      | No            |
+
+---
+
+## 🧠 Transport Layer
+
+![Transport](https://media.springernature.com/lw1200/springer-static/image/art%3A10.1007%2Fs44163-024-00134-3/MediaObjects/44163_2024_134_Fig2_HTML.png)
+
+👉 Transport Layer = How messages travel
+
+* Moves JSON-RPC messages
+* Client ↔ Server communication medium
+
+---
+
+## 🔀 Types of Servers
+
+### 1. Local Server
+
+![Local](https://miro.medium.com/v2/resize\:fit:1200/1-5gFJX9g0nVddOZXS6AMDDA.png)
+
+* Runs on same machine
+* Example: file system access
+
+---
+
+### 2. Remote Server
+
+![Remote](https://miro.medium.com/v2/resize\:fit:1400/1-6Xn1NsZM3Rp3XIanFkFJxQ.png)
+
+* Runs on internet
+* Example: GitHub API
+
+---
+
+## ⚙️ Transport for Local Server → STDIO
+
+![STDIO](https://media.geeksforgeeks.org/wp-content/uploads/20240206154107/Standard-Input-Output.webp)
+
+👉 STDIO = Standard Input Output
+
+### How it works:
+
+1. Host starts server as subprocess
+2. Host sends data via stdin
+3. Server sends response via stdout
+
+---
+
+## 💡 Example (Python)
+
+```python
+name = input("Enter name: ")
+print("Hello", name)
+```
+
+👉 Input → stdin
+👉 Output → stdout
+
+---
+
+## 🚀 Benefits of STDIO
+
+* ⚡ Fast (same machine)
+* 🔒 Secure (no network)
+* 🧩 Simple implementation
+
+---
+
+## 🌐 Transport for Remote Server → HTTP + SSE
+
+![HTTP](https://www.altexsoft.com/media/2020/05/word-image-54.png)
+![SSE](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events/streaming.png)
+
+### HTTP
+
+* Used to send requests
+* Uses POST request
+* JSON payload
+
+---
+
+### SSE (Server-Sent Events)
+
+👉 Used for streaming responses
+
+* Server sends data continuously
+* One connection, multiple messages
+
+---
+
+## 🔥 Why SSE?
+
+* Real-time updates
+* Streaming AI responses
+* Long-running tasks
+
+---
+
+## 🧠 Important Concept
+
+👉 JSON-RPC is **transport-agnostic**
+
+Means:
+
+* Works with STDIO
+* Works with HTTP
+* Works with WebSockets
+
+---
+
+## 🔥 Final Summary
+
+* Data Layer → JSON-RPC
+* Transport Layer → message delivery
+
+### Local Server:
+
+* Uses STDIO
+
+### Remote Server:
+
+* Uses HTTP + SSE
+
+---
+
+## 🎯 Key Insight
+
+👉 MCP separates:
+
+* Data Layer (language)
+* Transport Layer (delivery)
+
+➡️ This makes system flexible and scalable
+
+---
+
+## 📌 Source
+
+Based on video content: fileciteturn1file0
+
