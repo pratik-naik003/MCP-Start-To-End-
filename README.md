@@ -615,4 +615,245 @@ To:
 
 These notes are based on the provided content and simplified deeply for understanding. fileciteturn0file0
 
+# 📘 Model Context Protocol (MCP) — Part 1 (Architecture)
+
+---
+
+## 🧠 What is MCP?
+
+![MCP Architecture](https://mcpcat.io/images/blog/mcp-architecture.png)
+
+MCP (Model Context Protocol) is a standard that allows AI applications (like chatbots) to connect with external tools, data, and services.
+
+👉 Simple idea:
+**MCP = "USB port for AI" → connect AI to tools like GitHub, Slack, Database**
+
+---
+
+## 🧩 Basic MCP Architecture (Simplest Version)
+
+### Components:
+
+* Host (AI Chatbot)
+* Server (Tool provider)
+
+---
+
+### 🔹 Host (AI Chatbot)
+
+* User interacts with this
+* Connected to LLM (OpenAI, Gemini, Claude)
+
+### 🔹 Server (Tool)
+
+* Performs actual tasks
+* Examples:
+
+  * GitHub → commits
+  * Slack → messages
+  * Drive → files
+
+---
+
+## 🔁 Simple Flow
+
+1. User asks question
+2. Host → LLM
+3. LLM needs external data
+4. Host → Server
+5. Server → data
+6. LLM → final answer
+
+---
+
+## ⚠️ Refined Architecture (Important)
+
+👉 Host does NOT directly talk to Server
+
+### New Component:
+
+* Client (MCP Client)
+
+---
+
+## 🧩 Final Architecture
+
+![Architecture](https://miro.medium.com/v2/resize\:fit:1200/1-hxvZY7Rg6hPKv8amieddOw.png)
+
+### Components:
+
+* Host
+* Client
+* Server
+
+---
+
+## 🔹 Role of Client
+
+* Acts as translator
+* Converts request → MCP format
+* Converts response → Host format
+
+👉 Client speaks MCP language (JSON-RPC)
+
+---
+
+## 🔁 Updated Flow
+
+1. User → Host
+2. Host → Client
+3. Client → Server
+4. Server → Client
+5. Client → Host
+6. Host → User
+
+---
+
+## 🔗 Relationship Rule
+
+👉 One Client ↔ One Server
+
+* More servers = more clients
+
+---
+
+## 📱 Real-Life Analogy
+
+| Real World | MCP    |
+| ---------- | ------ |
+| Phone      | Host   |
+| SIM        | Client |
+| Network    | Server |
+
+---
+
+## 🚀 Benefits
+
+### 1. Decoupling
+
+* Independent systems
+
+### 2. Parallel Processing
+
+* Multiple tasks at same time
+
+### 3. Scalability
+
+* Add unlimited servers
+
+---
+
+## 🧱 MCP Primitives
+
+👉 What server offers to host
+
+### 🔹 1. Tools
+
+* Actions
+* Dynamic data
+
+Examples:
+
+* Create issue
+* Get commits
+
+---
+
+### 🔹 2. Resources
+
+* Static data
+
+Examples:
+
+* README
+* Database schema
+
+---
+
+### 🔹 3. Prompts
+
+* Guidelines for AI
+
+Example structure:
+
+```
+Title
+Steps to reproduce
+Expected behavior
+Actual behavior
+Environment
+```
+
+---
+
+## ⚙️ Standard Operations
+
+### Tools
+
+* tools/list
+* tools/call
+
+### Resources
+
+* resources/list
+* resources/read
+* subscribe/unsubscribe
+
+### Prompts
+
+* prompts/list
+* prompts/get
+
+---
+
+## 🧠 Data Layer
+
+👉 Language of MCP
+
+* Uses JSON-RPC 2.0
+
+---
+
+## 🔗 JSON-RPC Example
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "get_commits",
+  "params": {
+    "repo": "my-repo"
+  },
+  "id": 1
+}
+```
+
+---
+
+## 🔥 Final Summary
+
+* MCP connects AI with tools
+* Architecture: Host → Client → Server
+* One client per server
+* Server provides:
+
+  * Tools
+  * Resources
+  * Prompts
+* Uses JSON-RPC
+
+---
+
+## 🎯 Use Cases
+
+* AI agents
+* Automation systems
+* Dev tools integration
+
+---
+
+## 📌 Source
+
+Based on video content: fileciteturn0file0
+
+
 
