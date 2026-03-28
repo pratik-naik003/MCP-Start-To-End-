@@ -1508,3 +1508,376 @@ MCP Lifecycle =
 🔥 Now you are ready to implement MCP in real projects!
 
 
+# MCP Lifecycle – Part 2 (Simple English Notes with Code)
+
+---
+
+## 📌 Introduction
+
+This part explains the **Operation Phase (deep)**, **Shutdown Phase**, and **Special Cases** in MCP.
+
+📌 fileciteturn1file0
+
+---
+
+# 🟡 Operation Phase (Detailed)
+
+👉 This phase is divided into **2 main parts**:
+
+1. Capability Discovery
+2. Tool Calling
+
+---
+
+## 🔍 1. Capability Discovery
+
+👉 Client finds out:
+
+* Which tools are available
+* Which resources are available
+* Which prompts are available
+
+---
+
+### 📤 Client Request (Tools List)
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/list"
+}
+```
+
+---
+
+### 📥 Server Response
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "tools": [
+      {"name": "readFile"},
+      {"name": "writeFile"},
+      {"name": "createDirectory"}
+    ]
+  }
+}
+```
+
+---
+
+### 📌 Important Points
+
+* Happens **automatically after initialization**
+* Client sends multiple requests:
+
+  * tools/list
+  * resources/list
+  * prompts/list
+
+---
+
+### ❌ Error Example (Method Not Found)
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "error": {
+    "code": -32601,
+    "message": "Method not found"
+  }
+}
+```
+
+👉 Happens when server doesn’t support that feature
+
+---
+
+## ⚙️ 2. Tool Calling
+
+👉 After discovery, client selects the correct tool
+
+---
+
+### 📤 Request (Tool Call)
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "readFile",
+    "arguments": {
+      "path": "desktop/hello.py"
+    }
+  }
+}
+```
+
+---
+
+### 📥 Response
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "result": {
+    "content": "print('Hello World')"
+  }
+}
+```
+
+---
+
+## 🧠 Flow Summary
+
+1. User asks question
+2. Client chooses tool
+3. Server executes tool
+4. Response returned
+
+---
+
+# 🔴 Shutdown Phase (Detailed)
+
+👉 Ends the session between client and server
+
+---
+
+## 📌 Important Concept
+
+* No JSON-RPC messages used
+* Controlled by **transport layer**
+
+---
+
+## 🖥️ 1. Shutdown in STDIO (Local Server)
+
+### ✔ Client Initiated (Common)
+
+Steps:
+
+1. Client closes input stream (stdin)
+2. Waits for server to exit
+3. If not → sends SIGTERM
+4. If still not → sends SIGKILL
+
+---
+
+### ✔ Server Initiated (Rare)
+
+* Server closes output stream
+* Server exits
+
+---
+
+## 🌐 2. Shutdown in HTTP (Remote Server)
+
+### ✔ Client Initiated
+
+* Client closes HTTP connection
+
+### ✔ Server Initiated
+
+* Server drops connection
+* Client must handle reconnect
+
+---
+
+# ⚡ Special Cases in MCP
+
+---
+
+## 📡 1. Ping
+
+👉 Used to check if connection is alive
+
+---
+
+### 📤 Ping Request
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 10,
+  "method": "ping"
+}
+```
+
+---
+
+### 📥 Ping Response
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 10,
+  "result": {}
+}
+```
+
+---
+
+## 📌 When Used:
+
+* During initialization
+* During long operations
+* Prevent connection drop
+
+---
+
+## ❗ 2. Error Handling
+
+👉 MCP uses **JSON-RPC error format**
+
+---
+
+### 📦 Error Object
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "error": {
+    "code": -32601,
+    "message": "Method not found",
+    "data": {}
+  }
+}
+```
+
+---
+
+## 📌 Common Error Cases
+
+* Version mismatch
+* Invalid method
+* Invalid arguments
+* Server failure
+* Timeout
+* Invalid JSON
+
+---
+
+## 📊 Common Error Codes
+
+| Code   | Meaning          |
+| ------ | ---------------- |
+| -32601 | Method not found |
+| -32602 | Invalid params   |
+| -32600 | Invalid request  |
+| -32700 | Invalid JSON     |
+| 32000+ | Server errors    |
+
+---
+
+## ⏳ 3. Timeout
+
+👉 Prevents infinite waiting
+
+---
+
+### Flow:
+
+1. Client sends request
+2. Waits (e.g., 30 sec)
+3. If no response → timeout
+4. Cancel request
+
+---
+
+### 📤 Cancellation Notification
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/cancelled",
+  "params": {
+    "requestId": 7,
+    "reason": "timeout"
+  }
+}
+```
+
+---
+
+## 📈 4. Progress Notification
+
+👉 Used for long-running tasks
+
+---
+
+### 📤 Request with Token
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "method": "tools/call",
+  "params": {
+    "name": "scanRepo",
+    "_meta": {
+      "progressToken": "abc123"
+    }
+  }
+}
+```
+
+---
+
+### 📥 Progress Update
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/progress",
+  "params": {
+    "progressToken": "abc123",
+    "progress": 60,
+    "message": "Scanning files..."
+  }
+}
+```
+
+---
+
+## 📌 Benefits
+
+* Better user experience
+* Real-time updates
+* No confusion during long tasks
+
+---
+
+# 🧠 Final Summary
+
+### Operation Phase:
+
+* Discover tools
+* Call tools
+
+### Shutdown Phase:
+
+* Close connection
+
+### Special Cases:
+
+* Ping → check alive
+* Errors → handle failures
+* Timeout → stop waiting
+* Progress → show updates
+
+---
+
+🔥 Now you fully understand MCP Lifecycle (Part 2)
+
+👉 Next step: Build real MCP client & server 🚀
+
+
+
