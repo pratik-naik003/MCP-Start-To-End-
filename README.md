@@ -2516,8 +2516,287 @@ AI will:
 * Start with local → move to remote
 
 ---
+# Remote MCP Server (Simple Notes + Code)
 
-📚 Source: fileciteturn0file0
+## 📌 What is MCP?
+
+MCP (Model Context Protocol) allows you to create servers that provide tools, resources, and data to AI models.
+
+---
+
+## 🏠 Local vs 🌐 Remote MCP Server
+
+### Local MCP Server
+
+* Runs on your own machine
+* Faster (no internet communication)
+* Only you can use it
+
+### Remote MCP Server
+
+* Runs on another machine (internet server)
+* Can serve multiple users
+* More powerful (better compute)
+* Slightly slower (network delay)
+
+👉 In real-world (companies), most MCP servers are **remote**.
+
+---
+
+## 🎯 Goal of This Project
+
+We will:
+
+1. Create a simple remote MCP server
+2. Add tools (like add numbers, random number)
+3. Deploy it online
+4. Connect it with client (Claude Desktop)
+
+---
+
+## ⚙️ Step 1: Setup Environment
+
+Install `uv`:
+
+```bash
+pip install uv
+```
+
+Create project folder:
+
+```bash
+mkdir test-remote-server
+cd test-remote-server
+```
+
+Initialize project:
+
+```bash
+uv init .
+```
+
+Install FastMCP:
+
+```bash
+uv add fastmcp
+```
+
+---
+
+## 🧠 Step 2: Basic MCP Server Code
+
+Create `main.py` file:
+
+```python
+from fastmcp import FastMCP
+import random
+
+mcp = FastMCP("Simple Calculator Server")
+
+# Tool 1: Add two numbers
+@mcp.tool()
+def add(a: int, b: int) -> int:
+    return a + b
+
+# Tool 2: Generate random number
+@mcp.tool()
+def random_number(min: int, max: int) -> int:
+    return random.randint(min, max)
+
+# Resource
+@mcp.resource()
+def server_info() -> str:
+    return "This is a simple MCP server"
+
+if __name__ == "__main__":
+    mcp.run(
+        transport="http",
+        host="0.0.0.0",
+        port=8000
+    )
+```
+
+### 🔥 Important Change (Local → Remote)
+
+* Local uses: `mcp.run()`
+* Remote uses:
+
+```python
+mcp.run(transport="http", host="0.0.0.0", port=8000)
+```
+
+---
+
+## ▶️ Step 3: Run Server
+
+```bash
+uv run main.py
+```
+
+---
+
+## 🧪 Step 4: Test using MCP Inspector
+
+```bash
+uv run fastmcp dev main.py
+```
+
+* Select: `streamable-http`
+* Click connect
+* Test tools (add, random number)
+
+---
+
+## 🚀 Step 5: Deploy Server (FastMCP Cloud)
+
+1. Push code to GitHub
+
+```bash
+git init
+git add .
+git commit -m "initial commit"
+git remote add origin <repo-url>
+git push origin main
+```
+
+2. Go to: [https://fastmcp.cloud](https://fastmcp.cloud)
+3. Connect GitHub
+4. Select repo
+5. Deploy
+
+👉 You will get a **public URL** for your MCP server.
+
+---
+
+## 🔗 Step 6: Connect to Claude Desktop
+
+* Go to Settings → Connectors
+* Add Custom Connector
+* Paste server URL
+
+⚠️ Note: Custom connector works only in **Pro plan**
+
+---
+
+## 🛠️ Free Plan Solution (Proxy Server)
+
+If you don’t have Pro plan:
+
+### Idea:
+
+Claude → Local Proxy → Remote MCP Server
+
+### Proxy Code:
+
+```python
+from fastmcp import FastMCP
+
+mcp = FastMCP.as_proxy(
+    "https://your-remote-server-url",
+    name="Proxy Server"
+)
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+Run:
+
+```bash
+uv run fastmcp install claude-desktop main.py
+```
+
+---
+
+## ⚠️ Problems & Fixes
+
+### 1. Database Read-Only Issue
+
+* Happens after deployment
+* Fix: Change DB handling (write-enabled path)
+
+---
+
+### 2. Blocking Server (Slow for multiple users)
+
+Problem:
+
+* One user blocks others
+
+Solution:
+
+* Use async programming
+
+```bash
+uv add aiosqlite
+```
+
+Example:
+
+```python
+import aiosqlite
+
+async def add_expense():
+    async with aiosqlite.connect("db.sqlite") as db:
+        await db.execute("...")
+```
+
+---
+
+### 3. Multi-user Problem (BIG ISSUE)
+
+Problem:
+
+* All users share same database
+* No user identification
+
+Solution:
+
+* Add `user_id` in database
+* Add authentication system
+
+---
+
+## 🧠 Key Learnings
+
+* Remote MCP servers are future of AI tools
+* Only transport changes (HTTP vs STDIO)
+* Deployment makes your server public
+* Async improves performance
+* Authentication is important for real apps
+
+---
+
+## 🚀 Next Steps
+
+* Build your own MCP client
+* Learn authentication in MCP
+* Add user sessions
+* Explore advanced concepts:
+
+  * Sampling
+  * Elicitation
+
+---
+
+## ✅ Summary
+
+You learned how to:
+
+* Build MCP server
+* Convert local → remote
+* Deploy online
+* Connect with client
+* Handle real-world issues
+
+---
+
+💡 Tip: Try building your own project like:
+
+* Expense tracker MCP
+* Weather MCP
+* College info MCP
+
 
 
 
