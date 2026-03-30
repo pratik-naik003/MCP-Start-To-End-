@@ -2150,6 +2150,376 @@ You will find:
 
 👉 MCP is very powerful for automation and AI integration
 
+# MCP (Model Context Protocol) – Simple Notes
+
+## 📌 Overview
+
+This content explains how to build your own **MCP server** using FastMCP.
+
+The learning is divided into 3 parts:
+
+* **Why MCP?** → Why we need it
+* **What is MCP?** → Architecture + lifecycle
+* **How to use MCP?** → Build servers and clients
+
+👉 In this part, we focus on:
+
+* Building a **local MCP server**
+* Creating a real project: **Expense Tracker**
+
+---
+
+# 🧠 What is MCP?
+
+MCP (Model Context Protocol) is a **set of rules (protocol)** that allows:
+
+* LLMs (like Claude, ChatGPT)
+* Tools (like DB, APIs)
+
+to communicate with each other.
+
+👉 Instead of writing complex integrations, MCP standardizes everything.
+
+---
+
+# ⚡ Problem Before MCP
+
+Before MCP:
+
+* Hard to connect AI with tools
+* Repetitive code
+* Complex integrations
+
+---
+
+# 🚀 Solution: MCP + Libraries
+
+Instead of coding everything from scratch, we use libraries:
+
+### 1. MCP SDK
+
+* Official library
+* Powerful but complex
+* Lots of boilerplate code
+
+### 2. FastMCP (Recommended ✅)
+
+* Built on top of MCP SDK
+* Simple and beginner-friendly
+* Less code
+
+👉 Think like:
+
+* MCP SDK = TensorFlow
+* FastMCP = Keras
+
+---
+
+# 📦 Installation Steps
+
+## Step 1: Install UV (faster than pip)
+
+```bash
+pip install uv
+```
+
+## Step 2: Create Project Folder
+
+```bash
+mkdir expense-tracker-mcp
+cd expense-tracker-mcp
+```
+
+## Step 3: Initialize Project
+
+```bash
+uv init .
+```
+
+## Step 4: Install FastMCP
+
+```bash
+uv add fastmcp
+```
+
+## Step 5: Check Installation
+
+```bash
+fastmcp version
+```
+
+---
+
+# 🏗️ Basic MCP Server (Demo)
+
+We create a simple server with 2 tools:
+
+* Roll Dice 🎲
+* Add Numbers ➕
+
+## Code Example
+
+```python
+from fastmcp import FastMCP
+import random
+
+mcp = FastMCP("Demo Server")
+
+@mcp.tool()
+def roll_dice(n: int) -> list:
+    return [random.randint(1, 6) for _ in range(n)]
+
+@mcp.tool()
+def add_numbers(a: int, b: int) -> int:
+    return a + b
+
+if __name__ == "__main__":
+    mcp.run()
+```
+
+👉 Key Idea:
+
+* `@mcp.tool()` → converts function into MCP tool
+* `mcp.run()` → starts server
+
+---
+
+# 🧪 Testing Server (MCP Inspector)
+
+Run this command:
+
+```bash
+uv run fastmcp dev main.py
+```
+
+👉 Opens MCP Inspector (like Postman for MCP)
+
+You can:
+
+* See tools
+* Run tools
+* Debug server
+
+---
+
+# ▶️ Running the Server
+
+```bash
+uv run fastmcp run main.py
+```
+
+---
+
+# 🔗 Connect with Claude Desktop
+
+```bash
+uv run fastmcp install claude-desktop main.py
+```
+
+If error occurs:
+
+* Replace `uv` with full path
+
+---
+
+# 💡 Main Project: Expense Tracker MCP Server
+
+## Idea
+
+Instead of using apps, you can say:
+
+👉 "I spent ₹20 on milk"
+
+And AI will:
+
+* Add to database
+* Track expenses
+* Answer queries
+
+---
+
+# 🧩 Features
+
+### 1. Add Expense
+
+* Add transaction
+
+### 2. List Expenses
+
+* View all expenses
+
+### 3. Summarize
+
+* Total spending
+* Category-wise analysis
+
+---
+
+# 🗄️ Database (SQLite)
+
+We use SQLite (simple DB stored in file).
+
+## Table Schema
+
+* id
+* date
+* amount
+* category
+* subcategory
+* note
+
+---
+
+# 🧾 Code: Initialize Database
+
+```python
+import sqlite3
+
+conn = sqlite3.connect("expenses.db")
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS expenses (
+    id INTEGER PRIMARY KEY,
+    date TEXT,
+    amount REAL,
+    category TEXT,
+    subcategory TEXT,
+    note TEXT
+)
+""")
+
+conn.commit()
+conn.close()
+```
+
+---
+
+# ➕ Tool: Add Expense
+
+```python
+@mcp.tool()
+def add_expense(date, amount, category, subcategory, note):
+    conn = sqlite3.connect("expenses.db")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "INSERT INTO expenses (date, amount, category, subcategory, note) VALUES (?, ?, ?, ?, ?)",
+        (date, amount, category, subcategory, note)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return "Expense added successfully"
+```
+
+---
+
+# 📋 Tool: List Expenses
+
+```python
+@mcp.tool()
+def list_expenses():
+    conn = sqlite3.connect("expenses.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM expenses ORDER BY date ASC")
+    rows = cursor.fetchall()
+
+    conn.close()
+    return rows
+```
+
+---
+
+# 🔍 Improved Feature (Date Range)
+
+```python
+@mcp.tool()
+def list_expenses(start_date, end_date):
+    conn = sqlite3.connect("expenses.db")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT * FROM expenses WHERE date BETWEEN ? AND ?",
+        (start_date, end_date)
+    )
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    return rows
+```
+
+---
+
+# 🧠 Key Concepts
+
+### MCP Components
+
+* Tools → Functions
+* Resources → Data
+* Prompts → Instructions
+
+### Transport
+
+* Local: STDIO
+* Remote: HTTP
+
+---
+
+# 🛣️ Roadmap
+
+1. Build basic server ✅
+2. Add features (expense tracker) ✅
+3. Improve features (filters, summary)
+4. Deploy as remote server
+5. Build your own MCP client
+
+---
+
+# 💡 Extra Ideas
+
+You can extend project:
+
+* Edit expense
+* Delete expense
+* Add income
+* Graph visualization
+
+---
+
+# 🎯 Final Understanding
+
+MCP allows:
+
+* Natural language → real actions
+* AI → control tools
+
+👉 Example:
+"Show my last 7 days expenses"
+
+AI will:
+
+1. Understand query
+2. Call MCP tool
+3. Fetch data
+4. Return result
+
+---
+
+# 📌 Conclusion
+
+* MCP = future of AI tool integration
+* FastMCP = easiest way to build MCP apps
+* Start with local → move to remote
+
+---
+
+📚 Source: fileciteturn0file0
+
+
 
 
 
