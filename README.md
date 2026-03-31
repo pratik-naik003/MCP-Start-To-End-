@@ -2798,6 +2798,242 @@ You learned how to:
 * College info MCP
 
 
+# MCP Client (Model Context Protocol) – Simple Notes
+
+## 📌 Overview
+
+This guide explains how to build an MCP Client (chatbot) that can connect with MCP servers.
+
+---
+
+## 🎯 Goal
+
+Build a chatbot that:
+
+* Can do normal conversation
+* Can use MCP tools (like calculator, expense tracker)
+
+---
+
+## 🧱 Architecture
+
+* Client (Chatbot)
+* MCP Server (Tools provider)
+* LLM (decides which tool to use)
+
+---
+
+## ⚙️ Step 1: Install Dependencies
+
+```bash
+pip install uv
+uv init .
+uv add langchain langchain-openai langchain-mcp-adapters streamlit
+```
+
+---
+
+## 🧾 Step 2: Basic Client Code
+
+### Import libraries
+
+```python
+import asyncio
+from langchain_mcp_adapters.client import MultiServerMCPClient
+```
+
+---
+
+### Main async function
+
+```python
+async def main():
+    pass
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+---
+
+## 🔌 Step 3: Connect to MCP Server
+
+### Server configuration
+
+```python
+servers = {
+    "math": {
+        "transport": "stdio",
+        "command": "uv",
+        "args": ["run", "fastmcp", "run", "main.py"]
+    }
+}
+```
+
+---
+
+### Create client
+
+```python
+client = MultiServerMCPClient(servers)
+tools = await client.get_tools()
+```
+
+---
+
+## 🧰 Step 4: Convert tools into dictionary
+
+```python
+named_tools = {}
+for tool in tools:
+    named_tools[tool.name] = tool
+```
+
+---
+
+## 🤖 Step 5: Add LLM
+
+```python
+from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
+
+llm = ChatOpenAI(model="gpt-5")
+llm_with_tools = llm.bind_tools(tools)
+```
+
+---
+
+## 💬 Step 6: Ask question
+
+```python
+response = await llm_with_tools.ainvoke("What is product of 12 and 15? Use math tool")
+```
+
+---
+
+## 🔍 Step 7: Extract tool call
+
+```python
+tool_call = response.tool_calls[0]
+selected_tool = tool_call["name"]
+arguments = tool_call["args"]
+```
+
+---
+
+## ▶️ Step 8: Execute tool
+
+```python
+result = await named_tools[selected_tool].ainvoke(arguments)
+```
+
+---
+
+## 🔁 Step 9: Send result back to LLM
+
+```python
+from langchain_core.messages import ToolMessage
+
+tool_message = ToolMessage(
+    content=str(result),
+    tool_call_id=tool_call["id"]
+)
+
+final_response = await llm_with_tools.ainvoke([
+    "What is product of 12 and 15?",
+    response,
+    tool_message
+])
+
+print(final_response.content)
+```
+
+---
+
+## ⚠️ Handle normal queries (no tool needed)
+
+```python
+if not hasattr(response, "tool_calls"):
+    print(response.content)
+    return
+```
+
+---
+
+## 🔄 Multi-tool support (loop)
+
+```python
+for tool_call in response.tool_calls:
+    selected_tool = tool_call["name"]
+    arguments = tool_call["args"]
+
+    result = await named_tools[selected_tool].ainvoke(arguments)
+```
+
+---
+
+## 🌐 Add Remote MCP Server
+
+```python
+servers = {
+    "math": {...},
+    "expense": {
+        "transport": "http",
+        "url": "YOUR_REMOTE_SERVER_URL"
+    }
+}
+```
+
+---
+
+## 🎨 Streamlit UI (Optional)
+
+Run UI:
+
+```bash
+streamlit run client2.py
+```
+
+---
+
+## 🧠 Final Flow
+
+1. Connect client to server
+2. Fetch tools
+3. Bind tools to LLM
+4. Ask question
+5. LLM decides tool
+6. Execute tool
+7. Send result back
+8. Show final answer
+
+---
+
+## 🚀 Key Takeaways
+
+* MCP allows LLM to use external tools
+* Client connects LLM with servers
+* You can connect multiple servers
+* You can build your own AI-powered chatbot
+
+---
+
+## 📌 Future Improvements
+
+* Add more MCP servers
+* Improve UI
+* Deploy chatbot
+
+---
+
+## ✅ Done!
+
+Now you understand how to build an MCP Client step by step 🚀
+
+
+
 
 
 
